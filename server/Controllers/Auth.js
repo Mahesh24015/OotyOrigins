@@ -116,7 +116,7 @@ module.exports.Login = async (req, res) => {
       'Ooty Origins',
       { expiresIn: '24h' }
     );
-
+    res.cookie("token",jwtToken);
     res.status(200).json({
       message: "Login successful",
       success: true,
@@ -125,6 +125,7 @@ module.exports.Login = async (req, res) => {
       name: user.name,
       userId:user.userId
     });
+    
   } catch (err) {
     console.error("Error during login process:", err);
     res.status(500).json({

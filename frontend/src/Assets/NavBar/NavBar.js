@@ -23,6 +23,7 @@ import CartModal from './CartModal';
 import SignupForm from './SignupForm';
 
 
+axios.defaults.withCredentials = true;
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -176,7 +177,7 @@ function NavBar() {
         if (Username && Password) {
             console.log("vls are not empty");
             Axios.post('http://localhost:4000/login', { username: Username, password: Password }).then(res => {
-                console.log(res.data);
+                console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",res.data,res);
                 const data = res.data;
                 localStorage.setItem('Token', data.jwtToken);
                 setToken(data.jwtToken);
@@ -201,7 +202,7 @@ function NavBar() {
                 setsnackMessage("Log in Succesfull!");
                 handleClicksnack();
 
-                window.location.reload();
+                // window.location.reload();
             }).catch(function (error) {
                 console.log(error);
                 setsnackMessage("Login Failed! Try Again");

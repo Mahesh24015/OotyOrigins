@@ -303,6 +303,8 @@ function NavBar() {
         isUser: '',
     });
 
+
+    
     const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {

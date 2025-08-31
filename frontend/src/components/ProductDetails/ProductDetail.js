@@ -187,32 +187,6 @@ function ProductDetail() {
 
   };
 
-  // product review retrieving
-  // const ReviewRetriew = () => {
-  //   axios.post('  http://localhost:4000/get/reviews', {
-  // productId: product._id,
-  // userId: localStorage.getItem("userId"),
-  // rating,
-  // comment,
-  //   })
-  //   .then(() => {
-  //     setOpenDialog(false);
-  //     setOpenSnackbar(true);
-  //     setAlreadyReviwed(true);
-
-
-  //     axios
-  //     .get(`http://localhost:4000/get/reviews?productId=${product._id}`)
-  //     .then((response) => {
-  //       setReviews(response.data.reviews); // Assuming the API response contains a 'reviews' array
-  //     });
-  // })
-  // .catch((error) => {
-  //   console.error("Error submitting review:", error);
-  // });
-
-  // };
-
 
 
   if (!product) {

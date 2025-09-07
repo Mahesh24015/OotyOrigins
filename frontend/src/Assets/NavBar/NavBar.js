@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import { deepOrange } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
-import AdbIcon from '@mui/icons-material/Adb';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
 import Tab from '@mui/material/Tab';
@@ -20,7 +19,10 @@ import '../../index.css';
 import logo from "../images/logo512.png";
 import "../NavBar/NavBar.css";
 import CartModal from './CartModal';
-import SignupForm from './SignupForm';
+import SignupForm from './NavComponents/SignupForm';
+import { NavLogin } from './NavComponents/NavLogin';
+import { validateForm } from './NavComponents/validateForm';
+import { signup } from './NavComponents/signup';
 
 
 axios.defaults.withCredentials = true;
@@ -108,42 +110,6 @@ function NavBar() {
         }
     }, [token]);
 
-    const Search = styled('div')(({ theme }) => ({
-        position: 'relative',
-        borderRadius: theme.shape.borderRadius,
-        backgroundColor: alpha(theme.palette.common.white, 0.15),
-        '&:hover': {
-            backgroundColor: alpha(theme.palette.common.white, 0.25),
-        },
-        marginLeft: 0,
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            marginLeft: theme.spacing(1),
-            width: 'auto',
-        },
-    }));
-
-    const SearchIconWrapper = styled('div')(({ theme }) => ({
-        padding: theme.spacing(0, 2),
-        height: '100%',
-        position: 'absolute',
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }));
-
-    const StyledInputBase = styled(InputBase)(({ theme }) => ({
-        color: 'inherit',
-        width: '100%',
-        '& .MuiInputBase-input': {
-            padding: theme.spacing(1, 1, 1, 0),
-            // vertical padding + font size from searchIcon
-            paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-
-        },
-    }));
-
     const handleMenuClick = (menu) => (event) => setAnchorEl((prev) => ({ ...prev, [menu]: event.currentTarget }));
 
     const handleCloseMenu = (menu) => () => setAnchorEl((prev) => ({ ...prev, [menu]: null }));
@@ -171,60 +137,9 @@ function NavBar() {
         ))
     );
 
-
-
-    const submitLogin = () => {
-        if (Username && Password) {
-            console.log("vls are not empty");
-            Axios.post('http://localhost:4000/login', { username: Username, password: Password }).then(res => {
-                console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",res.data,res);
-                const data = res.data;
-                localStorage.setItem('Token', data.jwtToken);
-                setToken(data.jwtToken);
-                localStorage.setItem('username', data.username);
-                localStorage.setItem('userId', res.data.userId);
-                store.getState().userId = data.userId;
-                const user = {// Implement a function to generate a unique user ID
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password, // Implement a function to hash the password
-                    address: {
-                        street: formData.street,
-                        city: formData.city,
-                        state: formData.state,
-                        zipcode: formData.zipcode,
-                    },
-                    phone: formData.phone,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                };
-                user.username = data.username;
-                setsnackMessage("Log in Succesfull!");
-                handleClicksnack();
-
-                // window.location.reload();
-            }).catch(function (error) {
-                console.log(error);
-                setsnackMessage("Login Failed! Try Again");
-                handleClicksnack();
-            })
-        }
-        else {
-            console.log("vals are empty");
-            setsnackMessage("Please Enter All The Details !");
-            handleClicksnack();
-        }
-    };
-
     const handleCloseSnakbar = (event, reason) => {
-        console.log("handling snackbar clicks");
-        // const handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
+        if (reason === 'clickaway') return;
         setOpensnack(false);
-        // };
-        // console.log("Opensnackbar is ", opensnack)
     }
     const handleClicksnack = () => {
         setOpensnack(true);
@@ -272,8 +187,6 @@ function NavBar() {
     };
 
     //-------------------------------------showCart----------------------------------
-    const [cart, setcart] = React.useState({})
-    const [CartProductsList, setCartProductsList] = React.useState([])
     var i = 0;
     React.useEffect(() => {
         axios.post('http://localhost:4000/get/users', { "username": localStorage.getItem("username") }).then(res => {
@@ -313,75 +226,10 @@ function NavBar() {
         setFormData({ ...formData, [name]: value });
     };
 
-    const validateForm = () => {
-        const newErrors = {};
-        const phonePattern = /^\d{10}$/; // Adjusting regex for phone format
-        const zipPattern = /^\d{6}$/;
-        if (!formData.username) newErrors.username = "Username is required.";
-        if (!formData.email) newErrors.email = "Email is required.";
-        if (!formData.password || formData.password.length < 8) newErrors.password = "Password must be at least 8 characters.";
-        if (!formData.street) newErrors.street = "Street is required.";
-        if (!formData.city) newErrors.city = "City is required.";
-        if (!formData.state) newErrors.state = "State is required.";
-        if (!zipPattern.test(formData.zipcode)) newErrors.zipcode = "Zip Code must be 6 digits.";
-        if (!phonePattern.test(formData.phone)) newErrors.phone = "Phone must be in the format +91XXXXXXXXXX.";
-        if (!formData.isUser) { setIsUserError("This Field Is Required"); return false; }
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0; // Returns true if no errors
-    };
+    const signUp = (e) =>{
+        signup(e,formData,setsnackMessage, handleClicksnack,setisUser, setErrors, setToken, setIsUserError, errors, validateForm, setFormData)
+    }
 
-    const signup = (e) => {
-        e.preventDefault(); // Prevent default form submission
-
-        if (validateForm()) {
-            setFormData({
-                username: '',
-                email: '',
-                password: '',
-                street: '',
-                city: '',
-                state: '',
-                zipcode: '',
-                phone: '',
-                isUser: '',
-            });
-            setErrors({});
-            const user = {// Implement a function to generate a unique user ID
-                username: formData.username,
-                email: formData.email,
-                password: formData.password, // Implement a function to hash the password
-                address: {
-                    street: formData.street,
-                    city: formData.city,
-                    state: formData.state,
-                    zipcode: formData.zipcode,
-                },
-                phone: formData.phone,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                IsUser: formData.isUser == "true" ? true : false,
-            };
-            console.log('Form data submitted:', user);
-            axios.post('http://localhost:4000/signup', user).then(res => {
-                console.log(res.data);
-                const data = res.data;
-                localStorage.setItem('Token', data.jwtToken);
-                setToken(data.jwtToken);
-                localStorage.setItem('username', data.username)
-                console.log(data.jwtToken);
-                setsnackMessage("Log in Succesfull!");
-                handleClicksnack();
-            }).catch(function (error) {
-                console.log(error);
-                setsnackMessage("Login Failed Succesfully!");
-                handleClicksnack();
-            })
-        } else {
-            console.log('Validation failed:', errors);
-        }
-        setIsUserError("");
-
-    };
 
     return (
         <AppBar position="static" color="secondary" >
@@ -503,20 +351,10 @@ function NavBar() {
                                             </Tabs>
                                         </Box>
                                         <CustomTabPanel value={value} index={0}>
-                                            <form className="form">
-                                                <Grid2 container sx={{ width: '100%' }} justifyContent="center">
-                                                    <Grid2 item >
-                                                        <TextField required sx={{ margin: 'auto', display: 'block', width: '100%', padding: '5px' }} onChange={(event) => { setUsername(event.target.value) }} label="Username" variant="outlined" />
-                                                        <TextField type='password' required sx={{ margin: 'auto', display: 'block', width: '100%', padding: '5px' }} onChange={(event) => { setPassword(event.target.value) }} label="Password" variant="outlined" />
-                                                    </Grid2>
-                                                </Grid2>
-                                                <Button className='button-89' sx={{ margin: 'auto', display: 'block' }} onClick={submitLogin} variant="contained" style={{ backgroundColor: '#616161' }}>
-                                                    Log In
-                                                </Button>
-                                            </form>
+                                            <NavLogin setUsername={setUsername} setPassword={setPassword} formData={formData} setToken={setToken} store={store} setsnackMessage={setsnackMessage} handleClicksnack={handleClicksnack} />
                                         </CustomTabPanel>
                                         <CustomTabPanel value={value} index={1}>
-                                            <SignupForm handleChange = {handleChange} signup={signup} formData={formData} errors={errors} isuererror={isuererror} ></SignupForm>
+                                            <SignupForm handleChange = {handleChange} signup={signUp} formData={formData} errors={errors} isuererror={isuererror} ></SignupForm>
                                         </CustomTabPanel>
                                     </Box>
                                 </Box>
